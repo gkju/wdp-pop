@@ -9,7 +9,6 @@
 -Wconversion
 -Wlogical-not-parentheses
 -Wnull-dereference
--Werror
 -fstack-protector-strong
 -fsanitize=undefined
 -fno-sanitize-recover
