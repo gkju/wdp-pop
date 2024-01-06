@@ -1,10 +1,14 @@
+/// wszystkie moje komentarze zaczynają się od "///"
+/// przetestowałem na milionie losowych testów (dużych i małych) i wygląda na to że działa :) (+ kilka valgrindów)
+/// zatem dalej już tylko uwagi do stylu
+/// generalna uwaga: mało komentarzy, np. funkcje set_pom, query_pom są długie, przydałby się jakiś komentarz co one robią i ewentualnie drobne komentarze w środku
 #include <vector>
 #include <memory>
 #include <climits>
 
 class Node {
 public:
-    std::shared_ptr<Node> left, right = nullptr;
+    std::shared_ptr<Node> left, right;
     int value;
 
     Node(int val) : value(val) {}
@@ -30,10 +34,13 @@ std::shared_ptr<Node> descend_r(const std::shared_ptr<Node> &node) {
 
 long long int get_mid(long long int lo, long long int hi) {
     // dla border case gdy bierzemy srednia z dwoch kolejnych ujemnych liczb
-    return lo +  (hi - lo) / 2;
+    return lo +  (hi - lo) / 2; /// tu Ci się walnęła spacja za dużo (tak wiem drobnostka ale akurat się rzuciła mi w oczy to piszę (: )
 }
 
-void set_pom(int query_val, std::pair<int,int> query, std::pair<long long int,long long int> my_range, const std::shared_ptr<Node> &node, const std::shared_ptr<Node> &old_node) {
+/// raczej nie mieszamy języków w których nazywamy zmienne (np. set_pom - możnaby nazwać choćby _set albo set_help?)
+void _set(int query_val, std::pair<int,int> query, std::pair<long long int,long long int> my_range, 
+        const std::shared_ptr<Node> &node, const std::shared_ptr<Node> &old_node) {
+    /// strasznie długa linijka z nagłówkiem funkcji, warto jakiś enter dać; PS long long int możesz pisać krócej long long (co imo nie odbija się źle na czytelności, a skraca trochę), ale tak też jest git ofc
     if(old_node != nullptr) {
         node->left = old_node->left;
         node->right = old_node->right;
@@ -49,20 +56,20 @@ void set_pom(int query_val, std::pair<int,int> query, std::pair<long long int,lo
     }
 
     long long int mid = get_mid(my_range.first, my_range.second);
-    node->left = std::make_shared<Node>(-1);
+    node->left = std::make_shared<Node>(-1); /// zamiast pisać wielokrotnie -1 warto zrobić stałą
     node->right = std::make_shared<Node>(-1);
 
-    set_pom(query_val, query, {my_range.first, mid}, descend_l(node), descend_l(old_node));
-    set_pom(query_val, query, {mid + 1, my_range.second}, descend_r(node), descend_r(old_node));
+    _set(query_val, query, {my_range.first, mid}, descend_l(node), descend_l(old_node));
+    _set(query_val, query, {mid + 1, my_range.second}, descend_r(node), descend_r(old_node));
     node->value = std::max(node->left->value, node->right->value);
 }
 
 void set(int value, int lo, int hi) {
     roots.push_back(std::make_shared<Node>(-1));
-    set_pom(value, {lo, hi}, {MIN, MAX}, roots.back(), roots.size() > 1 ? roots[roots.size() - 2] : nullptr);
+    _set(value, {lo, hi}, {MIN, MAX}, roots.back(), roots.size() > 1 ? roots[roots.size() - 2] : nullptr);
 }
 
-int query_pom(std::pair<int,int> query, std::pair<long long int,long long int> my_range, const std::shared_ptr<Node> &node) {
+int _query(std::pair<int,int> query, std::pair<long long int,long long int> my_range, const std::shared_ptr<Node> &node) {
     if (node == nullptr) {
         return -1;
     }
@@ -74,11 +81,11 @@ int query_pom(std::pair<int,int> query, std::pair<long long int,long long int> m
     }
 
     long long int mid = get_mid(my_range.first, my_range.second);
-    return std::max(query_pom(query, {my_range.first, mid}, descend_l(node)), query_pom(query, {mid + 1, my_range.second}, descend_r(node)));
+    return std::max(_query(query, {my_range.first, mid}, descend_l(node)), _query(query, {mid + 1, my_range.second}, descend_r(node))); /// tu też długa linijka, proponowałbym enter dać
 }
 
 int query(int lo, int hi, const std::shared_ptr<Node> &node) {
-    return query_pom({lo, hi}, {MIN, MAX}, node);
+    return _query({lo, hi}, {MIN, MAX}, node);
 }
 
 void init(const std::vector<int> &seq) {

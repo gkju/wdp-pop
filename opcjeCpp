@@ -2,6 +2,7 @@
 -pedantic
 -Wall
 -Wextra
+-Werror
 -Wformat-security
 -Wduplicated-cond
 -Wfloat-equal
